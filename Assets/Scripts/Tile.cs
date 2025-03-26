@@ -18,11 +18,6 @@ public class Tile : MonoBehaviour
     public State state { get; private set; }
     public char letter { get; private set; }
 
-    /*private void Awake()
-    {
-        text = GetComponentInChildren<TextMeshProUGUI>();
-    }*/
-
     public void SetLetter(char letter)
     {
         this.letter = letter;

@@ -1,4 +1,5 @@
 using System;
+using TMPro;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -29,9 +30,13 @@ public class Board : MonoBehaviour
     public Tile.State wrongSpotState;
     public Tile.State incorrectState;
 
+    [Header("UI")] 
+    [SerializeField] private TextMeshProUGUI warningText;
+
     private void Awake()
     {
         rows = GetComponentsInChildren<Row>();
+        warningText.gameObject.SetActive(false);
     }
 
     private void Start()
@@ -62,22 +67,32 @@ public class Board : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Backspace))
         {
             columnIndex = Mathf.Max(columnIndex - 1, 0);
+            
             currentRow.tiles[columnIndex].SetLetter('\0');
             currentRow.tiles[columnIndex].SetState(emptyState);
+            
+            warningText.gameObject.SetActive(false);
         }
         else if (columnIndex >= rows[rowIndex].tiles.Length)
         {
-            if (Input.GetKeyDown(KeyCode.Return))
+            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
             {
                 SubmitRow(currentRow);
             }
         }
         else
         {
+            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+            {
+                warningText.gameObject.SetActive(true);
+                warningText.text = "Word not complete";
+            }
+            
             for (int i = 0; i < SUPPORTED_KEYS.Length; i++)
             {
                 if (Input.GetKeyDown(SUPPORTED_KEYS[i]))
                 {
+                    warningText.gameObject.SetActive(false);
                     rows[rowIndex].tiles[columnIndex].SetLetter((char)SUPPORTED_KEYS[i]);
                     currentRow.tiles[columnIndex].SetState(occupiedState);
                     columnIndex++;
@@ -89,21 +104,50 @@ public class Board : MonoBehaviour
 
     private void SubmitRow(Row row)
     {
-        for(int i = 0; i < row.tiles.Length; i++)
+        if (!IsValidWord(row.word))
+        {
+            warningText.gameObject.SetActive(true);
+            warningText.text = "Invalid Word";
+            return;
+        }
+        
+        string remaining = randomWord;
+
+        for (int i = 0; i < row.tiles.Length; i++)
         {
             Tile tile = row.tiles[i];
-            
+
             if (tile.letter == randomWord[i])
             {
                 tile.SetState(correctState);
+
+                remaining = remaining.Remove(i, 1);
+                remaining = remaining.Insert(i, " ");
             }
-            else if(randomWord.Contains(tile.letter))
-            {
-                tile.SetState(wrongSpotState);
-            }
-            else
+            else if (!randomWord.Contains(tile.letter))
             {
                 tile.SetState(incorrectState);
+            }
+        }
+
+        for (int i = 0; i < row.tiles.Length; i++)
+        {
+            Tile tile = row.tiles[i];
+
+            if (tile.state != correctState && tile.state != incorrectState)
+            {
+                if (remaining.Contains(tile.letter))
+                {
+                    tile.SetState(wrongSpotState);
+
+                    int index = remaining.IndexOf(tile.letter);
+                    remaining = remaining.Remove(index, 1);
+                    remaining = remaining.Insert(index, " ");
+                }
+                else
+                {
+                    tile.SetState(incorrectState);
+                }
             }
         }
 
@@ -114,5 +158,18 @@ public class Board : MonoBehaviour
         {
             enabled = false;
         }
+    }
+
+    private bool IsValidWord(string word)
+    {
+        for (int i = 0; i < validWords.Length; i++)
+        {
+            if (validWords[i] == word)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
