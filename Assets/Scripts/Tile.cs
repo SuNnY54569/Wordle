@@ -11,7 +11,7 @@ public class Tile : MonoBehaviour
         public Color outlineColor;
     }
     
-    [SerializeField] private TextMeshProUGUI text;
+    [SerializeField] public TextMeshProUGUI text;
     [SerializeField] private Image fill;
     [SerializeField] private Outline outline;
     

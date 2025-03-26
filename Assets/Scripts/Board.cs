@@ -34,9 +34,14 @@ public class Board : MonoBehaviour
 
     [Header("UI")] 
     [SerializeField] private TextMeshProUGUI warningText;
+    [SerializeField] private TextMeshProUGUI showRandomWordText;
     [SerializeField] private Button tryAgainButton;
     [SerializeField] private Button newWordButton;
     [SerializeField] private Button winNewWordButton;
+    [SerializeField] private Button showWordButton;
+    
+    private bool isWordVisible = false;
+    private Row currentRow;
     
 
     private void Awake()
@@ -48,6 +53,7 @@ public class Board : MonoBehaviour
     private void Start()
     {
         //LoadData();
+        //KeyboardKey.onKeyPressed += OnLetterButtonClick;
         NewGame();
     }
 
@@ -96,13 +102,15 @@ public class Board : MonoBehaviour
         }
 
         randomWord = new string(wordArray).ToLower();
-        Debug.Log("Generated Word: " + randomWord);
-    
+        showRandomWordText.gameObject.SetActive(false);
+        isWordVisible = false;
+        showRandomWordText.text = randomWord;
+
     }
 
     private void Update()
     {
-        Row currentRow = rows[rowIndex];
+        currentRow = rows[rowIndex];
         
         if (Input.GetKeyDown(KeyCode.Backspace))
         {
@@ -141,13 +149,13 @@ public class Board : MonoBehaviour
             }
         }
     }
-    
-    public void OnLetterButtonClick(char letter)
+
+    public void OnLetterButtonClick(string letter)
     {
         if (columnIndex < rows[rowIndex].tiles.Length)
         {
             warningText.gameObject.SetActive(false);
-            rows[rowIndex].tiles[columnIndex].SetLetter(letter);
+            rows[rowIndex].tiles[columnIndex].SetLetter(letter[0]);
             rows[rowIndex].tiles[columnIndex].SetState(occupiedState);
             columnIndex++;
         }
@@ -166,26 +174,31 @@ public class Board : MonoBehaviour
     
     public void OnEnterButtonClick()
     {
-        Row currentRow = rows[rowIndex];
-
-        if (columnIndex < rows[rowIndex].tiles.Length)
+        if (columnIndex >= rows[rowIndex].tiles.Length) // Ensure word is complete
+        {
+            SubmitRow(currentRow);
+        }
+        else
         {
             warningText.gameObject.SetActive(true);
             warningText.text = "Word not complete";
-            return;
         }
-
-        SubmitRow(currentRow);
+    }
+    
+    public void ToggleRandomWord()
+    {
+        isWordVisible = !isWordVisible;
+        showRandomWordText.gameObject.SetActive(isWordVisible);
     }
 
     private void SubmitRow(Row row)
     {
-        if (!IsValidWord(row.word))
+        /*if (!IsValidWord(row.word))
         {
             warningText.gameObject.SetActive(true);
             warningText.text = "Invalid Word";
             return;
-        }
+        }*/
         
         string remaining = randomWord;
 
@@ -232,6 +245,8 @@ public class Board : MonoBehaviour
             enabled = false;
             
             winNewWordButton.gameObject.SetActive(true);
+            showRandomWordText.gameObject.SetActive(true);
+            isWordVisible = true;
             tryAgainButton.gameObject.SetActive(false);
             newWordButton.gameObject.SetActive(false);
 
@@ -262,7 +277,7 @@ public class Board : MonoBehaviour
         columnIndex = 0;
     }
 
-    private bool IsValidWord(string word)
+    /*private bool IsValidWord(string word)
     {
         for (int i = 0; i < validWords.Length; i++)
         {
@@ -273,7 +288,7 @@ public class Board : MonoBehaviour
         }
 
         return false;
-    }
+    }*/
 
     private bool HasWon(Row row)
     {
