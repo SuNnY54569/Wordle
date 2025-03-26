@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
@@ -35,6 +36,8 @@ public class Board : MonoBehaviour
     [Header("UI")] 
     [SerializeField] private TextMeshProUGUI warningText;
     [SerializeField] private TextMeshProUGUI showRandomWordText;
+    [SerializeField] private TextMeshProUGUI youWinText;
+    [SerializeField] private TextMeshProUGUI youLoseText;
     [SerializeField] private Button tryAgainButton;
     [SerializeField] private Button newWordButton;
     [SerializeField] private Button winNewWordButton;
@@ -53,7 +56,6 @@ public class Board : MonoBehaviour
     private void Start()
     {
         //LoadData();
-        //KeyboardKey.onKeyPressed += OnLetterButtonClick;
         NewGame();
     }
 
@@ -154,6 +156,7 @@ public class Board : MonoBehaviour
     {
         if (columnIndex < rows[rowIndex].tiles.Length)
         {
+            letter = letter.ToLower().Trim();
             warningText.gameObject.SetActive(false);
             rows[rowIndex].tiles[columnIndex].SetLetter(letter[0]);
             rows[rowIndex].tiles[columnIndex].SetState(occupiedState);
@@ -209,6 +212,7 @@ public class Board : MonoBehaviour
             if (tile.letter == randomWord[i])
             {
                 tile.SetState(correctState);
+                KeyboardManager.Instance.UpdateKeyColor(tile.letter, tile.state);
 
                 remaining = remaining.Remove(i, 1);
                 remaining = remaining.Insert(i, " ");
@@ -216,6 +220,7 @@ public class Board : MonoBehaviour
             else if (!randomWord.Contains(tile.letter))
             {
                 tile.SetState(incorrectState);
+                KeyboardManager.Instance.UpdateKeyColor(tile.letter, tile.state);
             }
         }
 
@@ -228,6 +233,7 @@ public class Board : MonoBehaviour
                 if (remaining.Contains(tile.letter))
                 {
                     tile.SetState(wrongSpotState);
+                    KeyboardManager.Instance.UpdateKeyColor(tile.letter, tile.state);
 
                     int index = remaining.IndexOf(tile.letter);
                     remaining = remaining.Remove(index, 1);
@@ -236,6 +242,7 @@ public class Board : MonoBehaviour
                 else
                 {
                     tile.SetState(incorrectState);
+                    KeyboardManager.Instance.UpdateKeyColor(tile.letter, tile.state);
                 }
             }
         }
@@ -246,9 +253,11 @@ public class Board : MonoBehaviour
             
             winNewWordButton.gameObject.SetActive(true);
             showRandomWordText.gameObject.SetActive(true);
+            youWinText.gameObject.SetActive(true);
             isWordVisible = true;
             tryAgainButton.gameObject.SetActive(false);
             newWordButton.gameObject.SetActive(false);
+            youLoseText.gameObject.SetActive(false);
 
             return;
         }
@@ -273,8 +282,17 @@ public class Board : MonoBehaviour
             }
         }
 
+        foreach (KeyCode key in SUPPORTED_KEYS)
+        {
+            char letter = (char)key;
+            KeyboardManager.Instance.UpdateKeyColor(letter, emptyState);
+        }
+        
         rowIndex = 0;
         columnIndex = 0;
+        
+        youWinText.gameObject.SetActive(false);
+        youLoseText.gameObject.SetActive(false);
     }
 
     /*private bool IsValidWord(string word)
@@ -308,11 +326,15 @@ public class Board : MonoBehaviour
         tryAgainButton.gameObject.SetActive(false);
         newWordButton.gameObject.SetActive(false);
         winNewWordButton.gameObject.SetActive(false);
+        youLoseText.gameObject.SetActive(false);
     }
 
     private void OnDisable()
     {
         tryAgainButton.gameObject.SetActive(true);
         newWordButton.gameObject.SetActive(true);
+        youLoseText.gameObject.SetActive(true);
+        showRandomWordText.gameObject.SetActive(false);
+        isWordVisible = false;
     }
 }
