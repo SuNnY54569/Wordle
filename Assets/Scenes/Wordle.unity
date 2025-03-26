@@ -267,6 +267,8 @@ MonoBehaviour:
     fillColor: {r: 0.4061054, g: 0.44915897, b: 0.509434, a: 1}
     outlineColor: {r: 0.16078432, g: 0.18039216, b: 0.20784315, a: 1}
   warningText: {fileID: 1651484176}
+  tryAgainButton: {fileID: 1273615566}
+  newWordButton: {fileID: 493064202}
 --- !u!114 &173498050
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -632,7 +634,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 493064203}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 173498049}
+        m_TargetAssemblyTypeName: Board, Assembly-CSharp
+        m_MethodName: NewGame
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &493064203
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1225,7 +1239,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1273615567}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 173498049}
+        m_TargetAssemblyTypeName: Board, Assembly-CSharp
+        m_MethodName: TryAgain
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1273615567
 MonoBehaviour:
   m_ObjectHideFlags: 0
