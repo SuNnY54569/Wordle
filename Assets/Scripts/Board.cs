@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class Board : MonoBehaviour
 {
@@ -12,14 +13,46 @@ public class Board : MonoBehaviour
         KeyCode.Y, KeyCode.Z
     };
 
-    private Row[] rows;
+    [SerializeField] private Row[] rows;
 
-    private int rowIndex;
-    private int columnIndex;
+    [SerializeField] private string[] solutions;
+    [SerializeField] private string[] validWords;
+    [SerializeField] private string randomWord;
+
+    [SerializeField] private int rowIndex;
+    [SerializeField] private int columnIndex;
+
+    [Header("States")] 
+    public Tile.State emptyState;
+    public Tile.State occupiedState;
+    public Tile.State correctState;
+    public Tile.State wrongSpotState;
+    public Tile.State incorrectState;
 
     private void Awake()
     {
         rows = GetComponentsInChildren<Row>();
+    }
+
+    private void Start()
+    {
+        LoadData();
+        SetRandomWord();
+    }
+
+    private void LoadData()
+    {
+        TextAsset textFile = Resources.Load("official_wordle_all") as TextAsset;
+        validWords = textFile.text.Split('\n');
+        
+        textFile = Resources.Load("official_wordle_common") as TextAsset;
+        solutions = textFile.text.Split('\n');
+    }
+
+    private void SetRandomWord()
+    {
+        randomWord = solutions[Random.Range(0, solutions.Length)];
+        randomWord = randomWord.ToLower().Trim();
     }
 
     private void Update()
@@ -30,6 +63,7 @@ public class Board : MonoBehaviour
         {
             columnIndex = Mathf.Max(columnIndex - 1, 0);
             currentRow.tiles[columnIndex].SetLetter('\0');
+            currentRow.tiles[columnIndex].SetState(emptyState);
         }
         else if (columnIndex >= rows[rowIndex].tiles.Length)
         {
@@ -45,6 +79,7 @@ public class Board : MonoBehaviour
                 if (Input.GetKeyDown(SUPPORTED_KEYS[i]))
                 {
                     rows[rowIndex].tiles[columnIndex].SetLetter((char)SUPPORTED_KEYS[i]);
+                    currentRow.tiles[columnIndex].SetState(occupiedState);
                     columnIndex++;
                     break;
                 }
@@ -54,6 +89,30 @@ public class Board : MonoBehaviour
 
     private void SubmitRow(Row row)
     {
-        
+        for(int i = 0; i < row.tiles.Length; i++)
+        {
+            Tile tile = row.tiles[i];
+            
+            if (tile.letter == randomWord[i])
+            {
+                tile.SetState(correctState);
+            }
+            else if(randomWord.Contains(tile.letter))
+            {
+                tile.SetState(wrongSpotState);
+            }
+            else
+            {
+                tile.SetState(incorrectState);
+            }
+        }
+
+        rowIndex++;
+        columnIndex = 0;
+
+        if (rowIndex >= rows.Length)
+        {
+            enabled = false;
+        }
     }
 }

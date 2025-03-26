@@ -226,7 +226,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_EffectColor: {r: 0.5754717, g: 0.5754717, b: 0.5754717, a: 1}
+  m_EffectColor: {r: 0.39607844, g: 0.39607844, b: 0.39607844, a: 1}
   m_EffectDistance: {x: 3, y: 3}
   m_UseGraphicAlpha: 0
 --- !u!114 &3522933201263139291
@@ -241,3 +241,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c3ca8b5610af66489f187408b75359e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  text: {fileID: 1659759951353659944}
+  fill: {fileID: 3868579852143004739}
+  outline: {fileID: 952037921895618795}
