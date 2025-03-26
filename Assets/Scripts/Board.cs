@@ -45,6 +45,7 @@ public class Board : MonoBehaviour
     
     private bool isWordVisible = false;
     private Row currentRow;
+    private HashSet<char> correctLetters = new HashSet<char>();
     
 
     private void Awake()
@@ -191,6 +192,8 @@ public class Board : MonoBehaviour
     public void ToggleRandomWord()
     {
         isWordVisible = !isWordVisible;
+        
+        showWordButton.GetComponentInChildren<TextMeshProUGUI>().text = isWordVisible ? "Hide" : "Show";
         showRandomWordText.gameObject.SetActive(isWordVisible);
     }
 
@@ -212,6 +215,7 @@ public class Board : MonoBehaviour
             if (tile.letter == randomWord[i])
             {
                 tile.SetState(correctState);
+                correctLetters.Add(tile.letter);
                 KeyboardManager.Instance.UpdateKeyColor(tile.letter, tile.state);
 
                 remaining = remaining.Remove(i, 1);
@@ -220,7 +224,10 @@ public class Board : MonoBehaviour
             else if (!randomWord.Contains(tile.letter))
             {
                 tile.SetState(incorrectState);
-                KeyboardManager.Instance.UpdateKeyColor(tile.letter, tile.state);
+                if (!correctLetters.Contains(tile.letter))
+                {
+                    KeyboardManager.Instance.UpdateKeyColor(tile.letter, tile.state);
+                }
             }
         }
 
@@ -233,7 +240,10 @@ public class Board : MonoBehaviour
                 if (remaining.Contains(tile.letter))
                 {
                     tile.SetState(wrongSpotState);
-                    KeyboardManager.Instance.UpdateKeyColor(tile.letter, tile.state);
+                    if (!correctLetters.Contains(tile.letter)) // Prevent overwriting correct letters
+                    {
+                        KeyboardManager.Instance.UpdateKeyColor(tile.letter, tile.state);
+                    }
 
                     int index = remaining.IndexOf(tile.letter);
                     remaining = remaining.Remove(index, 1);
@@ -242,7 +252,10 @@ public class Board : MonoBehaviour
                 else
                 {
                     tile.SetState(incorrectState);
-                    KeyboardManager.Instance.UpdateKeyColor(tile.letter, tile.state);
+                    if (!correctLetters.Contains(tile.letter))
+                    {
+                        KeyboardManager.Instance.UpdateKeyColor(tile.letter, tile.state);
+                    }
                 }
             }
         }
@@ -273,6 +286,8 @@ public class Board : MonoBehaviour
 
     private void ClearBoard()
     {
+        correctLetters.Clear();
+        
         for (int row = 0; row < rows.Length; row++)
         {
             for (int col = 0; col < rows[row].tiles.Length; col++)
@@ -336,5 +351,10 @@ public class Board : MonoBehaviour
         youLoseText.gameObject.SetActive(true);
         showRandomWordText.gameObject.SetActive(false);
         isWordVisible = false;
+    }
+
+    public void Quit()
+    {
+        Application.Quit();
     }
 }
