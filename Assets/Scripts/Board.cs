@@ -56,7 +56,6 @@ public class Board : MonoBehaviour
 
     private void Start()
     {
-        //LoadData();
         NewGame();
     }
 
@@ -75,20 +74,8 @@ public class Board : MonoBehaviour
         enabled = true;
     }
 
-    /*private void LoadData()
-    {
-        TextAsset textFile = Resources.Load("official_wordle_all") as TextAsset;
-        validWords = textFile.text.Split('\n');
-        
-        textFile = Resources.Load("official_wordle_common") as TextAsset;
-        solutions = textFile.text.Split('\n');
-    }*/
-
     private void SetRandomWord()
     {
-        /*randomWord = solutions[Random.Range(0, solutions.Length)];
-        randomWord = randomWord.ToLower().Trim();*/
-        
         const string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         char[] wordArray = new char[5];
         int index = 0;
@@ -178,7 +165,7 @@ public class Board : MonoBehaviour
     
     public void OnEnterButtonClick()
     {
-        if (columnIndex >= rows[rowIndex].tiles.Length) // Ensure word is complete
+        if (columnIndex >= rows[rowIndex].tiles.Length)
         {
             SubmitRow(currentRow);
         }
@@ -199,12 +186,6 @@ public class Board : MonoBehaviour
 
     private void SubmitRow(Row row)
     {
-        /*if (!IsValidWord(row.word))
-        {
-            warningText.gameObject.SetActive(true);
-            warningText.text = "Invalid Word";
-            return;
-        }*/
         
         string remaining = randomWord;
 
@@ -309,19 +290,6 @@ public class Board : MonoBehaviour
         youWinText.gameObject.SetActive(false);
         youLoseText.gameObject.SetActive(false);
     }
-
-    /*private bool IsValidWord(string word)
-    {
-        for (int i = 0; i < validWords.Length; i++)
-        {
-            if (validWords[i] == word)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }*/
 
     private bool HasWon(Row row)
     {
