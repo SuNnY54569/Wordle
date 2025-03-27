@@ -36,16 +36,19 @@ public class Board : MonoBehaviour
     [Header("UI")] 
     [SerializeField] private TextMeshProUGUI warningText;
     [SerializeField] private TextMeshProUGUI showRandomWordText;
+    [SerializeField] private TextMeshProUGUI answerText;
     [SerializeField] private TextMeshProUGUI youWinText;
     [SerializeField] private TextMeshProUGUI youLoseText;
-    [SerializeField] private Button tryAgainButton;
-    [SerializeField] private Button newWordButton;
-    [SerializeField] private Button winNewWordButton;
+    [SerializeField] private Button NewWordButton;
     [SerializeField] private Button showWordButton;
+    [SerializeField] private TextMeshProUGUI attemptText;
+    [SerializeField] private GameObject endPanel;
+    
     
     private bool isWordVisible = false;
     private Row currentRow;
     private HashSet<char> correctLetters = new HashSet<char>();
+    private int attemptCount;
     
 
     private void Awake()
@@ -63,14 +66,25 @@ public class Board : MonoBehaviour
     {
         ClearBoard();
         SetRandomWord();
+        
+        attemptCount = 0;
+        attemptText.text = "Attempts: 0";
 
+        if (isWordVisible)
+        {
+            ToggleRandomWord();
+        }
+        
         enabled = true;
+        youWinText.gameObject.SetActive(false);
+        youLoseText.gameObject.SetActive(false);
     }
 
     public void TryAgain()
     {
         ClearBoard();
-        
+        attemptCount = 0;
+        attemptText.text = "Attempts: 0";
         enabled = true;
     }
 
@@ -92,9 +106,8 @@ public class Board : MonoBehaviour
         }
 
         randomWord = new string(wordArray).ToLower();
-        showRandomWordText.gameObject.SetActive(false);
-        isWordVisible = false;
         showRandomWordText.text = randomWord;
+        answerText.text = randomWord;
 
     }
 
@@ -186,6 +199,8 @@ public class Board : MonoBehaviour
 
     private void SubmitRow(Row row)
     {
+        attemptCount++; // Increase attempt count
+        attemptText.text = $"Attempts: {attemptCount}";
         
         string remaining = randomWord;
 
@@ -221,7 +236,7 @@ public class Board : MonoBehaviour
                 if (remaining.Contains(tile.letter))
                 {
                     tile.SetState(wrongSpotState);
-                    if (!correctLetters.Contains(tile.letter)) // Prevent overwriting correct letters
+                    if (!correctLetters.Contains(tile.letter))
                     {
                         KeyboardManager.Instance.UpdateKeyColor(tile.letter, tile.state);
                     }
@@ -244,13 +259,7 @@ public class Board : MonoBehaviour
         if (HasWon(row))
         {
             enabled = false;
-            
-            winNewWordButton.gameObject.SetActive(true);
-            showRandomWordText.gameObject.SetActive(true);
             youWinText.gameObject.SetActive(true);
-            isWordVisible = true;
-            tryAgainButton.gameObject.SetActive(false);
-            newWordButton.gameObject.SetActive(false);
             youLoseText.gameObject.SetActive(false);
 
             return;
@@ -286,9 +295,6 @@ public class Board : MonoBehaviour
         
         rowIndex = 0;
         columnIndex = 0;
-        
-        youWinText.gameObject.SetActive(false);
-        youLoseText.gameObject.SetActive(false);
     }
 
     private bool HasWon(Row row)
@@ -306,19 +312,13 @@ public class Board : MonoBehaviour
 
     private void OnEnable()
     {
-        tryAgainButton.gameObject.SetActive(false);
-        newWordButton.gameObject.SetActive(false);
-        winNewWordButton.gameObject.SetActive(false);
-        youLoseText.gameObject.SetActive(false);
+        endPanel.SetActive(false);
     }
 
     private void OnDisable()
     {
-        tryAgainButton.gameObject.SetActive(true);
-        newWordButton.gameObject.SetActive(true);
+        endPanel.SetActive(true);
         youLoseText.gameObject.SetActive(true);
-        showRandomWordText.gameObject.SetActive(false);
-        isWordVisible = false;
     }
 
     public void Quit()
